@@ -10,6 +10,7 @@ import plotly.express as px
 import functools
 
 # Load CSV file from Datasets folder
+"""
 df1 = pd.read_csv('../Datasets/FoodDataCSV.csv')
 fips = pd.read_excel('../Datasets/all-geocodes-v2019.xlsx', skiprows=4)
 
@@ -61,6 +62,14 @@ fips_DF = pd.DataFrame(fips_list, columns = ["State", "County", "FIPS"])
 
 totaldata = pd.merge(totaldata, fips_DF, on=["State","County"], how="left")
 
+totaldata.to_csv('totaldata.csv', index=False)
+"""
+totaldata = pd.read_csv("totaldata.csv")
+totaldata['FIPS'] = totaldata['FIPS'].astype(str)
+totaldata['FIPS'] = totaldata['FIPS'].str.rjust(7, fillchar='0')
+for i in totaldata.index:
+    totaldata['FIPS'][i] = totaldata['FIPS'][i][0:5]
+
 totaldata['LA1and10 Per Tract'] = totaldata['LA1and10']/totaldata['TractCount']
 
 
@@ -73,9 +82,6 @@ rank_fig = px.choropleth(totaldata, geojson=counties, locations='FIPS', color='L
  scope='usa',
  labels={''}
  )
-
-rank_fig.show()
-
 
 app = dash.Dash()
 
@@ -96,13 +102,7 @@ app.layout = html.Div(children=[
     html.H3('Heat map', style={'color': '#df1e56'}),
     html.Div(
         'This heat map represent the Corona Virus recovered cases of all reported cases per day of week and week of month.'),
-    dcc.Graph(id='graph7',
-              figure={
-                  'data': rank_fig,
-                  'layout': go.Layout(title='Corona Virus Recovered Cases',
-                                      xaxis={'title': 'Day of Week'}, yaxis={'title': 'Week of Month'})
-              }
-              )
+    dcc.Graph(figure=rank_fig)
 ])
 
 if __name__ == '__main__':
