@@ -70,18 +70,31 @@ totaldata['FIPS'] = totaldata['FIPS'].str.rjust(7, fillchar='0')
 for i in totaldata.index:
     totaldata['FIPS'][i] = totaldata['FIPS'][i][0:5]
 
-totaldata['LA1and10 Per Tract'] = totaldata['LA1and10']/totaldata['TractCount']
+totaldata['CountyState'] = totaldata['County'] + ", " + totaldata['State']
+
+totaldata['LATotal%'] = totaldata['lapop10']/totaldata['POP2010'] * 100;
+totaldata['LALow-Income%'] = totaldata['lalowi10']/totaldata['TractLOWI'] * 100;
+totaldata['LAKids%'] = totaldata['lakids10']/totaldata['TractKids'] * 100;
+totaldata['LASeniors%'] = totaldata['laseniors10']/totaldata['TractSeniors'] * 100;
+totaldata['LAWhite%'] = totaldata['lawhite10']/totaldata['TractWhite'] * 100;
+totaldata['LABlack%'] = totaldata['lablack10']/totaldata['TractBlack'] * 100;
+totaldata['LAAsian%'] = totaldata['laasian10']/totaldata['TractAsian'] * 100;
+totaldata['LAHispanic%'] = totaldata['lahisp10']/totaldata['TractHispanic'] * 100;
+
+indicators = ['LATotal%', 'LALow-Income%', 'LAKids%', 'LASeniors%', 'LAWhite%', 'LABlack%', 'LAAsian%', 'LAHispanic%']
 
 
 with urlopen('https://raw.githubusercontent.com/plotly/datasets/master/geojson-counties-fips.json') as response:
  counties = json.load(response)
 
+"""
 rank_fig = px.choropleth(totaldata, geojson=counties, locations='FIPS', color='LA1and10 Per Tract',
  color_continuous_scale='fall',
- range_color=(0, 1),
+ range_color=(0, 100),
  scope='usa',
  labels={''}
  )
+"""
 
 app = dash.Dash()
 
@@ -95,15 +108,42 @@ app.layout = html.Div(children=[
             }
             ),
     html.Div('Web dashboard for Data Visualization using Python', style={'textAlign': 'center'}),
-    html.Div('Coronavirus COVID-19 Global Cases -  1/22/2020 to 3/17/2020', style={'textAlign': 'center'}),
+    html.Div('Food Access in the U.S.A. in 2015', style={'textAlign': 'center'}),
     html.Br(),
     html.Br(),
     html.Hr(style={'color': '#7FDBFF'}),
     html.H3('Heat map', style={'color': '#df1e56'}),
-    html.Div(
-        'This heat map represent the Corona Virus recovered cases of all reported cases per day of week and week of month.'),
-    dcc.Graph(figure=rank_fig)
+    dcc.Dropdown(
+        id='dataset',
+        options=[{'label': i, 'value': i} for i in indicators],
+        value="LATotal%"
+    ),
+    dcc.Graph(id='graphic')
 ])
+
+@app.callback(
+    Output('graphic', 'figure'),
+    Input('dataset', 'value'))
+def update_graph(dataset_name):
+    fig = px.choropleth(totaldata, geojson=counties, locations='FIPS', color=dataset_name,
+     color_continuous_scale='fall',
+     range_color=(totaldata[dataset_name].quantile(0.05), totaldata[dataset_name].quantile(0.95)),
+     scope='usa',
+     hover_name="CountyState",
+    )
+    
+    fig.update_layout(autosize=False,
+        margin = dict(
+                l=0,
+                r=0,
+                b=0,
+                t=0,
+                pad=4,
+                autoexpand=True
+            ),
+        width=1500)
+    
+    return fig
 
 if __name__ == '__main__':
     app.run_server()
