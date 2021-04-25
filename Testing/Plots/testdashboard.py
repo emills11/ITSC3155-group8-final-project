@@ -72,14 +72,17 @@ for i in totaldata.index:
 
 totaldata['CountyState'] = totaldata['County'] + ", " + totaldata['State']
 
-totaldata['LATotal%'] = totaldata['lapop10']/totaldata['POP2010'] * 100;
-totaldata['LALow-Income%'] = totaldata['lalowi10']/totaldata['TractLOWI'] * 100;
-totaldata['LAKids%'] = totaldata['lakids10']/totaldata['TractKids'] * 100;
-totaldata['LASeniors%'] = totaldata['laseniors10']/totaldata['TractSeniors'] * 100;
-totaldata['LAWhite%'] = totaldata['lawhite10']/totaldata['TractWhite'] * 100;
-totaldata['LABlack%'] = totaldata['lablack10']/totaldata['TractBlack'] * 100;
-totaldata['LAAsian%'] = totaldata['laasian10']/totaldata['TractAsian'] * 100;
-totaldata['LAHispanic%'] = totaldata['lahisp10']/totaldata['TractHispanic'] * 100;
+distances = ['half', '1', '10', '20']
+for el in distances:
+    totaldata['LATotal%' + el] = totaldata['lapop' + el] / totaldata['POP2010'] * 100
+    totaldata['LALow-Income%' + el] = totaldata['lalowi' + el] / totaldata['TractLOWI'] * 100
+    totaldata['LAKids%' + el] = totaldata['lakids' + el] / totaldata['TractKids'] * 100
+    totaldata['LASeniors%' + el] = totaldata['laseniors' + el] / totaldata['TractSeniors'] * 100
+    totaldata['LAWhite%' + el] = totaldata['lawhite' + el] / totaldata['TractWhite'] * 100
+    totaldata['LABlack%' + el] = totaldata['lablack' + el] / totaldata['TractBlack'] * 100
+    totaldata['LAAsian%' + el] = totaldata['laasian' + el] / totaldata['TractAsian'] * 100
+    totaldata['LAHispanic%' + el] = totaldata['lahisp' + el] / totaldata['TractHispanic'] * 100
+
 
 indicators = ['LATotal%', 'LALow-Income%', 'LAKids%', 'LASeniors%', 'LAWhite%', 'LABlack%', 'LAAsian%', 'LAHispanic%']
 
@@ -113,21 +116,41 @@ app.layout = html.Div(children=[
     html.Br(),
     html.Hr(style={'color': '#7FDBFF'}),
     html.H3('Heat map', style={'color': '#df1e56'}),
-    dcc.Dropdown(
-        id='dataset',
-        options=[{'label': i, 'value': i} for i in indicators],
-        value="LATotal%"
-    ),
+    html.Div(children=[
+        dcc.Dropdown(
+                id='dataset',
+                options=[{'label': i, 'value': i} for i in indicators],
+                value="LATotal%",
+                placeholder='Population type',
+                style={'display': 'inline-block', 'width': '100%'},
+                searchable=False
+            ),
+        dcc.Dropdown(
+                id='distance',
+                options=[
+                    {'label': 'Beyond 0.5 mi', 'value': 'half'},
+                    {'label': 'Beyond 1 mi', 'value': '1'},
+                    {'label': 'Beyond 10 mi', 'value': '10'},
+                    {'label': 'Beyond 20 mi', 'value': '20'},
+                ],
+                value='half',
+                placeholder='Distance from supermarket',
+                style={'display': 'inline-block', 'width': '100%'},
+                searchable=False
+            )
+    ]),
     dcc.Graph(id='graphic')
 ])
 
 @app.callback(
     Output('graphic', 'figure'),
-    Input('dataset', 'value'))
-def update_graph(dataset_name):
-    fig = px.choropleth(totaldata, geojson=counties, locations='FIPS', color=dataset_name,
+    Input('dataset', 'value'),
+    Input('distance', 'value'))
+def update_graph(dataset_name, distance_value):
+    fig = px.choropleth(totaldata, geojson=counties, locations='FIPS', color=dataset_name + distance_value,
      color_continuous_scale='fall',
-     range_color=(totaldata[dataset_name].quantile(0.05), totaldata[dataset_name].quantile(0.95)),
+     range_color=(totaldata[dataset_name + distance_value].quantile(0.05),
+                  totaldata[dataset_name + distance_value].quantile(0.95)),
      scope='usa',
      hover_name="CountyState",
     )
@@ -144,6 +167,7 @@ def update_graph(dataset_name):
         width=1500)
     
     return fig
+
 
 if __name__ == '__main__':
     app.run_server()
