@@ -84,11 +84,18 @@ for el in distances:
     totaldata['LAHispanic%' + el] = totaldata['lahisp' + el] / totaldata['TractHispanic'] * 100
 
 
-indicators = ['LATotal%', 'LALow-Income%', 'LAKids%', 'LASeniors%', 'LAWhite%', 'LABlack%', 'LAAsian%', 'LAHispanic%']
+indicators = [['Total', 'LATotal%'],
+              ['Low-Income', 'LALow-Income%'],
+              ['Kids', 'LAKids%'],
+              ['Seniors', 'LASeniors%'],
+              ['White', 'LAWhite%'],
+              ['Black', 'LABlack%'],
+              ['Asian', 'LAAsian%'],
+              ['Hispanic', 'LAHispanic%']]
 
 
 with urlopen('https://raw.githubusercontent.com/plotly/datasets/master/geojson-counties-fips.json') as response:
- counties = json.load(response)
+    counties = json.load(response)
 
 """
 rank_fig = px.choropleth(totaldata, geojson=counties, locations='FIPS', color='LA1and10 Per Tract',
@@ -115,17 +122,28 @@ app.layout = html.Div(children=[
     html.Br(),
     html.Br(),
     html.Hr(style={'color': '#7FDBFF'}),
-    html.H3('Heat map', style={'color': '#df1e56'}),
+    html.H2('Heat map', style={'color': '#df1e56'}),
     html.Div(children=[
-        dcc.Dropdown(
+        html.Div(children=[
+            html.Div(children=[
+                html.H3("""Population Filter:""",
+                        style={'margin-right': '2em'})
+            ]),
+            dcc.Dropdown(
                 id='dataset',
-                options=[{'label': i, 'value': i} for i in indicators],
+                options=[{'label': i[0], 'value': i[1]} for i in indicators],
                 value="LATotal%",
-                placeholder='Population type',
-                style={'display': 'inline-block', 'width': '100%'},
+                placeholder='Population type...',
+                style={'width': '50em', 'verticalAlign': 'middle'},
                 searchable=False
-            ),
-        dcc.Dropdown(
+            )
+        ], style={'display': 'inline-block', 'margin-right': '2em'}),
+        html.Div(children=[
+            html.Div(children=[
+                html.H3("""Distance From Nearest Supermarket:""",
+                        style={'margin-right': '2em'})
+            ]),
+            dcc.Dropdown(
                 id='distance',
                 options=[
                     {'label': 'Beyond 0.5 mi', 'value': 'half'},
@@ -134,10 +152,12 @@ app.layout = html.Div(children=[
                     {'label': 'Beyond 20 mi', 'value': '20'},
                 ],
                 value='half',
-                placeholder='Distance from supermarket',
-                style={'display': 'inline-block', 'width': '100%'},
+                placeholder='Distance...',
+                style={'width': '50em', 'verticalAlign': 'middle'},
                 searchable=False
             )
+        ], style={'display': 'inline-block', 'margin-right': '2em'})
+
     ]),
     dcc.Graph(id='graphic')
 ])
