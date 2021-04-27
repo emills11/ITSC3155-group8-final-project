@@ -119,7 +119,7 @@ countylist = totaldata.County.unique()
 
 statelist = totaldata.State.unique()
 
-test2 = 0
+countystatelist = totaldata.CountyState.unique()
 
 distances = ['half', '1', '10', '20']
 
@@ -212,24 +212,11 @@ app.layout = html.Div(children=[
                         style={'margin-right': '2em'})
             ]),
             dcc.Dropdown(
-                id='countyforsearch',
-                value='Autauga',
-                placeholder='County...',
-                options=[{'label': i, 'value': i} for i in countylist],
-                style={'width': '30em', 'height':'2em', 'verticalAlign': 'top'},
-            )
-        ], style={'display': 'inline-block', 'margin-right': '2em'}),
-        html.Div(children=[
-            html.Div(children=[
-                html.H3("""State Name:""",
-                        style={'margin-right': '2em'})
-            ]),
-            dcc.Dropdown(
-                id='stateforsearch',
-                value='Alabama',
-                placeholder='State...',
-                options=[{'label': i, 'value': i} for i in statelist],
-                style={'width': '30em', 'height':'2em', 'verticalAlign': 'top'},
+                id='countystateforsearch',
+                value='Autauga, Alabama',
+                placeholder='County, State...',
+                options=[{'label': i, 'value': i} for i in countystatelist],
+                style={'width': '45em', 'height':'2em', 'verticalAlign': 'top'},
             )
         ], style={'display': 'inline-block', 'margin-right': '2em'}),
         html.Div(children=[
@@ -247,7 +234,7 @@ app.layout = html.Div(children=[
                 ],
                 value='half',
                 placeholder='Distance...',
-                style={'width': '30em', 'verticalAlign': 'top'},
+                style={'width': '45em', 'verticalAlign': 'top'},
                 searchable=False
             )
         ], style={'display': 'inline-block', 'margin-right': '2em'})
@@ -283,16 +270,15 @@ def update_graph(dataset_name, distance_value):
 
 @app.callback(
     Output('searchgraphic', 'figure'),
-    Input('countyforsearch', 'value'),
-    Input('stateforsearch', 'value'),
+    Input('countystateforsearch', 'value'),
     Input('distanceforsearch', 'value'),
     Input('searchgraphic', 'figure'))
-def update_search_graph(county_name, state_name, distance_value, prev_graphic):
+def update_search_graph(county_state_name, distance_value, prev_graphic):
     county_values = []
     state_values = []
     for val in [col[1] for col in indicators]:
-        county_val_list = totaldata.loc[(totaldata['State']==state_name) & (totaldata['County']==county_name),val+distance_value].tolist()
-        state_val_list = totaldata.loc[(totaldata['State']==state_name) & (totaldata['County']==county_name),val+distance_value+'avg'].tolist()
+        county_val_list = totaldata.loc[totaldata['CountyState']==county_state_name,val+distance_value].tolist()
+        state_val_list = totaldata.loc[totaldata['CountyState']==county_state_name,val+distance_value+'avg'].tolist()
         if county_val_list and state_val_list:
             county_values.append(county_val_list[0])
             state_values.append(state_val_list[0])
