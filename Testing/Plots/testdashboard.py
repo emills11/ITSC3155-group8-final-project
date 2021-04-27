@@ -287,7 +287,7 @@ def update_graph(dataset_name, distance_value):
     Input('stateforsearch', 'value'),
     Input('distanceforsearch', 'value'),
     Input('searchgraphic', 'figure'))
-def update_search_graph(county_name, state_name, distance_value):
+def update_search_graph(county_name, state_name, distance_value, prev_graphic):
     county_values = []
     state_values = []
     for val in [col[1] for col in indicators]:
@@ -299,12 +299,14 @@ def update_search_graph(county_name, state_name, distance_value):
     print(county_values)
     print(state_values)
     
-    
-    fig = go.Figure(data=[
-        go.Bar(name='County Average', x=[col[0] for col in indicators], y=county_values),
-        go.Bar(name='State Average', x=[col[0] for col in indicators], y=state_values)
-    ])
-    fig.update_layout(barmode='group')
+    if county_values and state_values:
+        fig = go.Figure(data=[
+            go.Bar(name='County Average', x=[col[0] for col in indicators], y=county_values),
+            go.Bar(name='State Average', x=[col[0] for col in indicators], y=state_values)
+        ])
+        fig.update_layout(barmode='group')
+    else:
+        fig = prev_graphic
     
     return fig
 
