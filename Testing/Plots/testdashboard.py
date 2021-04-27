@@ -7,7 +7,6 @@ import plotly.graph_objs as go
 from urllib.request import urlopen
 import json
 import plotly.express as px
-import functools
 
 # Load CSV file from Datasets folder
 """
@@ -115,10 +114,6 @@ totaldata.to_csv('totaldata.csv', index=False)
 
 totaldata = pd.read_csv("totaldata.csv")
 
-countylist = totaldata.County.unique()
-
-statelist = totaldata.State.unique()
-
 countystatelist = totaldata.CountyState.unique()
 
 distances = ['half', '1', '10', '20']
@@ -135,17 +130,7 @@ indicators = [['Total', 'LATotal%'],
 with urlopen('https://raw.githubusercontent.com/plotly/datasets/master/geojson-counties-fips.json') as response:
     counties = json.load(response)
 
-"""
-rank_fig = px.choropleth(totaldata, geojson=counties, locations='FIPS', color='LA1and10 Per Tract',
- color_continuous_scale='fall',
- range_color=(0, 100),
- scope='usa',
- labels={''}
- )
-"""
-
 app = dash.Dash()
-
 
 # Layout
 app.layout = html.Div(children=[
@@ -155,7 +140,7 @@ app.layout = html.Div(children=[
                 'color': 'SlateBlue'
             }
             ),
-    html.Div('A MVP Developed by Group 8 for ITSC 3155', style={'textAlign': 'center'}),
+    html.Div('An MVP Developed by Group 8 for ITSC 3155', style={'textAlign': 'center'}),
     html.Br(),
     html.Br(),
     html.Hr(style={'color': '#7FDBFF'}),
@@ -282,8 +267,6 @@ def update_search_graph(county_state_name, distance_value, prev_graphic):
         if county_val_list and state_val_list:
             county_values.append(county_val_list[0])
             state_values.append(state_val_list[0])
-    print(county_values)
-    print(state_values)
     
     if county_values and state_values:
         fig = go.Figure(data=[
