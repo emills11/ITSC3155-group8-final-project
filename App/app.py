@@ -59,7 +59,7 @@ app.layout = html.Div(children=[
     Input('swapbutton', 'value'))
 def swap_graph(clicks, value):
     return_children = []
-    if value == "HeatMap":
+    if value == "CountySearch":
         return_children = [
         html.H2('County Search', style={'color': 'SlateBlue'}),
         html.Div('This chart shows the difference in food accessibility across these population types for the given county and given distance to nearest supermarket'),
@@ -101,7 +101,7 @@ def swap_graph(clicks, value):
             html.Button('Swap to Heat Map', value="HeatMap", id="swapbutton", 
                         n_clicks=0, style={'font-size':'16px', 'padding':'10px'})
         ], style={'display':'flex', 'justify-content':'center'})]
-    elif value == "CountySearch":
+    elif value == "HeatMap":
         return_children = [
         html.H2('Heat Map', style={'color': 'SlateBlue'}),
         html.Div('The values shown on the map are the percent of people in the given population type that live beyond the given distance from the nearest supermarket'),
