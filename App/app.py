@@ -49,7 +49,7 @@ app.layout = html.Div(children=[
     html.Br(),
     html.Hr(style={'color': '#7FDBFF'}),
     html.Div(id="graphdiv", children=[
-        html.Button(value="CountySearch", id="swapbutton", n_clicks=0)])
+        html.Button(value="HeatMap", id="swapbutton", n_clicks=0)])
 ])
 
 # Callback method to swap graph type
@@ -62,7 +62,7 @@ def swap_graph(clicks, value):
     if value == "HeatMap":
         return_children = [
         html.H2('County Search', style={'color': 'SlateBlue'}),
-        html.Div('This chart shows the difference in food accesibility across these population types for the given county and given distance to nearest supermarket'),
+        html.Div('This chart shows the difference in food accessibility across these population types for the given county and given distance to nearest supermarket'),
         html.Br(),
         html.Div(children=[
             html.Div(children=[
@@ -98,7 +98,7 @@ def swap_graph(clicks, value):
         ], style={'display': 'inline-block', 'margin-right': '2em'}),
         dcc.Graph(id='searchgraphic'),
         html.Div(children=[
-            html.Button('Swap to Heat Map', value="CountySearch", id="swapbutton", 
+            html.Button('Swap to Heat Map', value="HeatMap", id="swapbutton", 
                         n_clicks=0, style={'font-size':'16px', 'padding':'10px'})
         ], style={'display':'flex', 'justify-content':'center'})]
     elif value == "CountySearch":
@@ -141,7 +141,7 @@ def swap_graph(clicks, value):
         ], style={'display': 'inline-block', 'margin-right': '2em'}),
         dcc.Graph(id='graphic'),
         html.Div(children=[
-            html.Button('Swap to County Search', value="HeatMap", id="swapbutton", 
+            html.Button('Swap to County Search', value="CountySearch", id="swapbutton", 
                         n_clicks=0, style={'font-size':'16px', 'padding':'10px'})
         ], style={'display':'flex', 'justify-content':'center'})]
     
