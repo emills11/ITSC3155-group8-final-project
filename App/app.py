@@ -196,7 +196,7 @@ def update_search_graph(county_state_name, distance_value, prev_graphic):
             go.Bar(name='County Average', x=[col[0] for col in indicators], y=county_values),
             go.Bar(name='State Average', x=[col[0] for col in indicators], y=state_values)
         ])
-        fig.update_layout(barmode='group')
+        fig.update_layout(barmode='group', title="County and State Averages for Food Accessibility", xaxis_title="Population Type", yaxis_title="Percent Beyond Distance")
     else:
         fig = prev_graphic
     
