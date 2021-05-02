@@ -9,7 +9,7 @@ import json
 import plotly.express as px
 
 # Load CSV file
-data = pd.read_csv("totaldata.csv")
+data = pd.read_csv("data.csv")
 
 # Initializing variables for use in Dash
 countystatelist = data.CountyState.unique()
@@ -44,10 +44,68 @@ app.layout = html.Div(children=[
     html.Br(),
     html.Br(),
     html.Hr(style={'color': '#7FDBFF'}),
-    html.H2('Heat Map', style={'color': 'SlateBlue'}),
-    html.Div('The values shown on the map are the percent of people in the given population type that live beyond the given distance from the nearest supermarket'),
+    html.H2('About', style={'color': 'SlateBlue'}),
+    html.Div('Food is an important part of human life; it is a source of joy, culture, and nourishment. Having access to food whether it be from a restaurant or a grocery store sounds like a standard for American living, but this is not always the case. Whether it be due to distance, cost, or availability, there are communities across the country that have poor food access and thus the inability to take care of their bodies. Through this project, we want to understand what areas are affected by poor food access and which populations are most affected by food insecurity across different areas in the country. We have developed two ways to visualize food accessibility data, one is a heat map that gives a national overview on food access and the other is a county search that pulls up a bar chart with food access data specific to that county.'),
     html.Br(),
-    html.Div(children=[
+    html.Hr(style={'color': '#7FDBFF'}),
+    html.Div(id="graphdiv", children=[
+        html.Button(value="CountySearch", id="swapbutton", n_clicks=0)])
+])
+
+# Callback method to swap graph type
+@app.callback(
+    Output('graphdiv', 'children'),
+    Input('swapbutton', 'n_clicks'),
+    Input('swapbutton', 'value'))
+def swap_graph(clicks, value):
+    return_children = []
+    if value == "HeatMap":
+        return_children = [
+        html.H2('County Search', style={'color': 'SlateBlue'}),
+        html.Div('This chart shows the difference in food accesibility across these population types for the given county and given distance to nearest supermarket'),
+        html.Br(),
+        html.Div(children=[
+            html.Div(children=[
+                html.H3("""County Name:""",
+                        style={'margin-right': '2em'})
+            ]),
+            dcc.Dropdown(
+                id='countystateforsearch',
+                value='Autauga, Alabama',
+                placeholder='County, State...',
+                options=[{'label': i, 'value': i} for i in countystatelist],
+                style={'width': '45em', 'height':'2em', 'verticalAlign': 'top'},
+            )
+        ], style={'display': 'inline-block', 'margin-right': '2em'}),
+        html.Div(children=[
+            html.Div(children=[
+                html.H3("""Distance From Nearest Supermarket:""",
+                        style={'margin-right': '2em'})
+            ]),
+            dcc.Dropdown(
+                id='distanceforsearch',
+                options=[
+                    {'label': 'Beyond 0.5 mi', 'value': 'half'},
+                    {'label': 'Beyond 1 mi', 'value': '1'},
+                    {'label': 'Beyond 10 mi', 'value': '10'},
+                    {'label': 'Beyond 20 mi', 'value': '20'},
+                ],
+                value='half',
+                placeholder='Distance...',
+                style={'width': '45em', 'verticalAlign': 'top'},
+                searchable=False
+            )
+        ], style={'display': 'inline-block', 'margin-right': '2em'}),
+        dcc.Graph(id='searchgraphic'),
+        html.Div(children=[
+            html.Button('Swap to Heat Map', value="CountySearch", id="swapbutton", 
+                        n_clicks=0, style={'font-size':'16px', 'padding':'10px'})
+        ], style={'display':'flex', 'justify-content':'center'})]
+    elif value == "CountySearch":
+        return_children = [
+        html.H2('Heat Map', style={'color': 'SlateBlue'}),
+        html.Div('The values shown on the map are the percent of people in the given population type that live beyond the given distance from the nearest supermarket'),
+        html.Br(),
         html.Div(children=[
             html.Div(children=[
                 html.H3("""Population Filter:""",
@@ -80,52 +138,15 @@ app.layout = html.Div(children=[
                 style={'width': '45em', 'verticalAlign': 'middle'},
                 searchable=False
             )
-        ], style={'display': 'inline-block', 'margin-right': '2em'})
-
-    ]),
-    dcc.Graph(id='graphic'),
-    html.Br(),
-    html.Hr(style={'color': '#7FDBFF'}),
-    html.Br(),
-    html.H2('County Search', style={'color': 'SlateBlue'}),
-    html.Div('This bar graph shows the percent of people in each population type that live beyond the given distance from the nearest supermarket. Each of these values is compared with the state average.'),
-    html.Br(),
-    html.Div(children=[
-        html.Div(children=[
-            html.Div(children=[
-                html.H3("""County Name:""",
-                        style={'margin-right': '2em'})
-            ]),
-            dcc.Dropdown(
-                id='countystateforsearch',
-                value='Autauga, Alabama',
-                placeholder='County, State...',
-                options=[{'label': i, 'value': i} for i in countystatelist],
-                style={'width': '45em', 'height':'2em', 'verticalAlign': 'top'},
-            )
         ], style={'display': 'inline-block', 'margin-right': '2em'}),
+        dcc.Graph(id='graphic'),
         html.Div(children=[
-            html.Div(children=[
-                html.H3("""Distance From Nearest Supermarket:""",
-                        style={'margin-right': '2em'})
-            ]),
-            dcc.Dropdown(
-                id='distanceforsearch',
-                options=[
-                    {'label': 'Beyond 0.5 mi', 'value': 'half'},
-                    {'label': 'Beyond 1 mi', 'value': '1'},
-                    {'label': 'Beyond 10 mi', 'value': '10'},
-                    {'label': 'Beyond 20 mi', 'value': '20'},
-                ],
-                value='half',
-                placeholder='Distance...',
-                style={'width': '45em', 'verticalAlign': 'top'},
-                searchable=False
-            )
-        ], style={'display': 'inline-block', 'margin-right': '2em'})
-    ], style={'display':'flex', 'flex-wrap':'wrap'}),
-    dcc.Graph(id='searchgraphic')
-])
+            html.Button('Swap to County Search', value="HeatMap", id="swapbutton", 
+                        n_clicks=0, style={'font-size':'16px', 'padding':'10px'})
+        ], style={'display':'flex', 'justify-content':'center'})]
+    
+    return return_children
+    
 
 # Callback method to update heat map
 @app.callback(
